@@ -1,0 +1,7 @@
+# pygame-ce (community edition) replaces pygame: it ships with audio (mixer) support
+# and has wheels for recent Python versions. Don't install both; they share `import pygame`.
+pygame-ce>=2.5.8
+mido>=1.3.3
+numpy>=2.0
+# moviepy 2.x: imported as `from moviepy import ...` (moviepy.editor was removed)
+moviepy>=2.0
