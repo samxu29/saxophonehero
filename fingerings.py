@@ -64,74 +64,71 @@ CLUSTERS = ('palm', 'left_table', 'side', 'right_pinky')
 _LEFT = ['L1', 'L2', 'L3']
 _ALL_SIX = ['L1', 'L2', 'L3', 'R1', 'R2', 'R3']
 
-# Standard fingerings keyed by concert-pitch MIDI note (comments are written pitch)
+# Saxophones share fingerings by *written* note; each instrument only differs in how far
+# written pitch sits above the concert pitch stored in MIDI files.
+INSTRUMENTS = {
+    'alto': {'name': 'Alto sax', 'key': 'E\u266d', 'transpose': 9},  # written = concert + major 6th
+    'tenor': {'name': 'Tenor sax', 'key': 'B\u266d', 'transpose': 14},  # written = concert + major 9th
+}
+DEFAULT_INSTRUMENT = 'alto'
+
+# Standard fingerings keyed by written-pitch MIDI note (same for alto and tenor)
 FINGERINGS = {
     # Low register
-    49: _ALL_SIX + ['LTable_Bb'],  # Bb3
-    50: _ALL_SIX + ['LTable_B'],  # B3
-    51: _ALL_SIX + ['RPinky_C'],  # C4
-    52: _ALL_SIX + ['LTable_Cs'],  # C#4
-    53: _ALL_SIX,  # D4
-    54: _ALL_SIX + ['RPinky_Eb'],  # Eb4
-    55: _LEFT + ['R1', 'R2'],  # E4
-    56: _LEFT + ['R1'],  # F4
-    57: _LEFT + ['R2'],  # F#4
-    58: _LEFT,  # G4
-    59: _LEFT + ['LTable_Gs'],  # G#4
-    60: ['L1', 'L2'],  # A4
-    61: ['L1', 'LBis'],  # Bb4
-    62: ['L1'],  # B4
-    63: ['L2'],  # C5
-    64: [],  # C#5 (open; see C# alternates below)
+    58: _ALL_SIX + ['LTable_Bb'],  # Bb3
+    59: _ALL_SIX + ['LTable_B'],  # B3
+    60: _ALL_SIX + ['RPinky_C'],  # C4
+    61: _ALL_SIX + ['LTable_Cs'],  # C#4
+    62: _ALL_SIX,  # D4
+    63: _ALL_SIX + ['RPinky_Eb'],  # Eb4
+    64: _LEFT + ['R1', 'R2'],  # E4
+    65: _LEFT + ['R1'],  # F4
+    66: _LEFT + ['R2'],  # F#4
+    67: _LEFT,  # G4
+    68: _LEFT + ['LTable_Gs'],  # G#4
+    69: ['L1', 'L2'],  # A4
+    70: ['L1', 'LBis'],  # Bb4
+    71: ['L1'],  # B4
+    72: ['L2'],  # C5
+    73: [],  # C#5 (open; L3 shown as optional, see OPTIONAL_KEYS)
     # Middle and high register (with octave key)
-    65: ['LThumb_Oct'] + _ALL_SIX,  # D5
-    66: ['LThumb_Oct'] + _ALL_SIX + ['RPinky_Eb'],  # Eb5
-    67: ['LThumb_Oct'] + _LEFT + ['R1', 'R2'],  # E5
-    68: ['LThumb_Oct'] + _LEFT + ['R1'],  # F5
-    69: ['LThumb_Oct'] + _LEFT + ['R2'],  # F#5
-    70: ['LThumb_Oct'] + _LEFT,  # G5
-    71: ['LThumb_Oct'] + _LEFT + ['LTable_Gs'],  # G#5
-    72: ['LThumb_Oct', 'L1', 'L2'],  # A5
-    73: ['LThumb_Oct', 'L1', 'LBis'],  # Bb5
-    74: ['LThumb_Oct', 'L1'],  # B5
-    75: ['LThumb_Oct', 'L2'],  # C6
-    76: ['LThumb_Oct'],  # C#6
+    74: ['LThumb_Oct'] + _ALL_SIX,  # D5
+    75: ['LThumb_Oct'] + _ALL_SIX + ['RPinky_Eb'],  # Eb5
+    76: ['LThumb_Oct'] + _LEFT + ['R1', 'R2'],  # E5
+    77: ['LThumb_Oct'] + _LEFT + ['R1'],  # F5
+    78: ['LThumb_Oct'] + _LEFT + ['R2'],  # F#5
+    79: ['LThumb_Oct'] + _LEFT,  # G5
+    80: ['LThumb_Oct'] + _LEFT + ['LTable_Gs'],  # G#5
+    81: ['LThumb_Oct', 'L1', 'L2'],  # A5
+    82: ['LThumb_Oct', 'L1', 'LBis'],  # Bb5
+    83: ['LThumb_Oct', 'L1'],  # B5
+    84: ['LThumb_Oct', 'L2'],  # C6
+    85: ['LThumb_Oct'],  # C#6 (L3 shown as optional, see OPTIONAL_KEYS)
     # Palm keys
-    77: ['LThumb_Oct', 'LPalm_D'],  # D6
-    78: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb'],  # Eb6
-    79: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb', 'RSide_E'],  # E6
-    80: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb', 'LPalm_F', 'RSide_E'],  # F6
+    86: ['LThumb_Oct', 'LPalm_D'],  # D6
+    87: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb'],  # Eb6
+    88: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb', 'RSide_E'],  # E6
+    89: ['LThumb_Oct', 'LPalm_D', 'LPalm_Eb', 'LPalm_F', 'RSide_E'],  # F6
 }
 
-# Middle C# (written C#5) alternates, picked by context in assign_fingerings()
-MIDDLE_C_SHARP = 64
-MIDDLE_D = 65
-C_SHARP_LONG = ['LThumb_Oct'] + _ALL_SIX + ['LTable_Cs']  # smooth to/from D: just lift the pinky
-C_SHARP_VENTED = ['LThumb_Oct', 'L3']  # fuller tone and pitch on held notes
-HELD_NOTE_BEATS = 0.9  # C# about a beat or longer is "held" (MIDI files often trim a few ticks)
-ADJACENT_GAP_BEATS = 0.5  # max gap for a neighbouring D to count as a D <-> C# transition
+# Extra keys shown see-through as "optional" on top of a note's standard fingering, keyed by
+# written pitch, as (keys, card label). On open C# (C#5, and C#6 with the octave key),
+# holding L3 down doesn't change the pitch.
+OPTIONAL_KEYS = {
+    73: (['L3'], 'open C\u266f \u00b7 L3 optional'),  # C#5
+    85: (['L3'], 'C\u266f \u00b7 L3 optional'),  # C#6
+}
 
 
-def assign_fingerings(notes):
-    """Set note['keys'], note['fingering'] (label for alternates) and note['optional'].
-    Middle C# picks: long fingering next to a middle D, vented when held, otherwise open."""
-    for i, note in enumerate(notes):
-        note['keys'] = FINGERINGS.get(note['note'], [])
-        note['fingering'] = None
-        note['optional'] = False  # alternate fingering; open is also fine
-        if note['note'] != MIDDLE_C_SHARP:
-            continue
-        prev = notes[i - 1] if i > 0 else None
-        nxt = notes[i + 1] if i + 1 < len(notes) else None
-        near_d = ((prev and prev['note'] == MIDDLE_D
-                   and note['start'] - prev['end'] <= ADJACENT_GAP_BEATS) or
-                  (nxt and nxt['note'] == MIDDLE_D
-                   and nxt['start'] - note['end'] <= ADJACENT_GAP_BEATS))
-        if near_d:
-            note['keys'], note['fingering'] = C_SHARP_LONG, 'long C♯ · or open'
-            note['optional'] = True
-        elif note['end'] - note['start'] >= HELD_NOTE_BEATS:
-            note['keys'], note['fingering'] = C_SHARP_VENTED, 'vented C♯ · or open'
-            note['optional'] = True
-        else:
-            note['fingering'] = 'open C♯ · lift all fingers'
+def assign_fingerings(notes, transpose):
+    """Set note['written'], note['keys'] (all keys to show), note['optional_keys'],
+    note['fingering'] (card label) and note['in_range'] for an instrument's transposition"""
+    for note in notes:
+        written = note['note'] + transpose
+        keys = FINGERINGS.get(written, [])
+        optional, label = OPTIONAL_KEYS.get(written, ([], None))
+        note['written'] = written
+        note['in_range'] = written in FINGERINGS
+        note['keys'] = keys + [k for k in optional if k not in keys]
+        note['optional_keys'] = set(optional)
+        note['fingering'] = label
